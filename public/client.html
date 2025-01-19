@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MUD Game</title>
+    <style>
+        #messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #000;
+            color: #fff;
+            font-family: monospace;
+        }
+        #status {
+            margin-bottom: 10px;
+        }
+        #command-input {
+            width: 100%;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="status">
+        Health: <span id="health">100</span>
+        Mana: <span id="mana">100</span>
+        Stamina: <span id="stamina">100</span>
+    </div>
+    <div id="messages"></div>
+    <input type="text" id="command-input" placeholder="Enter command...">
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const messagesDiv = document.getElementById('messages');
+        const commandInput = document.getElementById('command-input');
+        const healthSpan = document.getElementById('health');
+        const manaSpan = document.getElementById('mana');
+        const staminaSpan = document.getElementById('stamina');
+
+        socket.on('message', (message) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        socket.on('status', (status) => {
+            healthSpan.textContent = status.health;
+            manaSpan.textContent = status.mana;
+            staminaSpan.textContent = status.stamina;
+        });
+
+        commandInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                socket.emit('command', commandInput.value);
+                commandInput.value = '';
+            }
+        });
+    </script>
+</body>
+</html>
